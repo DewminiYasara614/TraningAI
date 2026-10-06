@@ -1,0 +1,15 @@
+<section hf-card tone="accent" padding="lg" class="sent" aria-labelledby="sent-heading">
+  <span class="badge" aria-hidden="true">✓</span>
+  <h2 #heading id="sent-heading" class="heading" tabindex="-1">Application sent</h2>
+  <p class="body">
+    Thanks {{ greeting() }}. {{ managerFirstName() }} and the {{ role().team }} team review
+    applications every {{ role().reviewDay }}, and you’ll hear from us either way by
+    {{ replyBy() }}. We’ll reply to {{ application().email }}.
+  </p>
+  <div class="actions">
+    <a hf-button size="md" href="/roles">Browse other roles</a>
+    <button hf-button variant="secondary" type="button" (click)="startAgain.emit()">
+      Start again
+    </button>
+  </div>
+</section>

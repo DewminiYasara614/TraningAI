@@ -1,0 +1,24 @@
+<aside hf-card class="facts" aria-label="Role details">
+  <dl class="list">
+    @for (fact of facts(); track fact.label) {
+      <div class="fact">
+        <dt class="label">{{ fact.label }}</dt>
+        <dd class="value">{{ fact.value }}</dd>
+      </div>
+    }
+  </dl>
+  <hr class="divider" />
+  <dl class="list">
+    <div class="fact">
+      <dt class="label">Applications close</dt>
+      <dd class="value">{{ closes() }}</dd>
+    </div>
+  </dl>
+  <div class="manager">
+    <span class="avatar" aria-hidden="true">{{ role().hiringManager.initials }}</span>
+    <div class="manager-text">
+      <span class="manager-name">{{ role().hiringManager.name }}</span>
+      <span class="manager-role">{{ role().hiringManager.role }}</span>
+    </div>
+  </div>
+</aside>

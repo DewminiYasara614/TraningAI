@@ -1,16 +1,20 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0 (MINOR: scope constraints materially expanded)
-- Modified principles: none
+- Version change: 1.1.0 → 2.0.0 (MAJOR: stack and testing rules redefined for Angular, per the
+  Shift Forward lab workbook, step C1)
+- Modified principles:
+  - V. Swappable Data Layer — services are Angular root-provided; the API returns Observables
+- Added principles: VII. Angular Engineering Standards
 - Modified sections:
-  - Technology & Scope Constraints: recorded the adopted stack (TypeScript strict, React 18,
-    Vite 5, Vitest + RTL, Playwright + axe); resolved TODO(NON_GOALS) with explicit non-goals
-    drawn from specs/001-job-application decisions
-- Added sections: none
+  - Technology & Scope Constraints: React/Vite/Playwright replaced by Angular (standalone,
+    zoneless, no SSR) in `frontend/`; UI/e2e automation skipped for the workshop time-box;
+    non-goals extended (multi-step wizard, server email, search)
+  - Development Workflow: Constitution Check covers Principles I–VII
 - Removed sections: none
 - Templates: plan-template.md "Constitution Check" reads this file at runtime — no edits required
 - Deferred TODOs: none
-- Follow-up: CLAUDE.md "Non-goals" and "Project state" should be brought in line with this file
+- Follow-up: the earlier React build at the repo root (`src/`, `tests/`) predates v2.0.0 and is
+  superseded by `frontend/`; remove it or keep it as reference by explicit decision
 -->
 
 # HireFlow Constitution
@@ -64,7 +68,10 @@ Rationale: few, plain components keep the interface consistent and cheap to main
 
 - There is no backend. Data persists in browser `localStorage`.
 - Components MUST NOT access `localStorage` directly. All data access goes through an
-  `ApplicationService`, which depends on a `StorageService` abstraction.
+  `ApplicationService`, which depends on a `StorageService` abstraction. Both are
+  `providedIn: 'root'`.
+- Service methods that read or write data MUST return Observables, even though `localStorage` is
+  synchronous, so an HTTP implementation is a drop-in replacement.
 - Replacing `StorageService` with an HTTP API implementation MUST require no component changes.
 
 Rationale: keeps the prototype honest about its future architecture and makes a real API a
@@ -78,13 +85,59 @@ drop-in change.
 
 Rationale: unhandled states and fake copy hide the real UX problems that matter to candidates.
 
+### VII. Angular Engineering Standards
+
+Structure:
+- The Angular application lives in `frontend/` at the repo root, separate from `./design` and the
+  Spec Kit artifacts. `ng` commands run from inside `frontend/`.
+- Feature-first folders: a feature's components, service and models live together. `shared/`
+  holds reusable UI; `core/` holds singletons. Feature routes are lazy-loaded.
+- Standalone components everywhere; no NgModules.
+
+Naming (Angular official style guide):
+- Files kebab-case, one concept per file, filename matching its main export.
+- Classes PascalCase; models are PascalCase interfaces; `any` is prohibited.
+- Component selectors use the `hf-` prefix (e.g. `hf-application-form`).
+
+Components:
+- `changeDetection: ChangeDetectionStrategy.OnPush`; signal inputs/outputs (`input()`,
+  `output()`, `model()`).
+- Components stay small; separate data ("smart") from presentational ("dumb") components where it
+  helps. No business logic in templates.
+
+State & data:
+- Local state with signals (`signal`, `computed`) — derive, don't duplicate.
+- Strict TypeScript; typed models throughout.
+
+Templates & reactivity:
+- Built-in control flow only (`@if`, `@for` with `track`, `@switch`).
+- Prefer signals; when using Observables, use the `async` pipe or clean up with
+  `takeUntilDestroyed()`.
+
+Styling & accessibility:
+- Component-scoped styles; every colour, type and spacing value via CSS custom properties mapped
+  to the design tokens (Principle I).
+- Semantic HTML, labelled controls, visible focus, sufficient contrast (Principle II).
+
+Quality gates:
+- ESLint (angular-eslint) and Prettier, applied consistently.
+- The spec's acceptance criteria are the definition of done. Core logic and services MUST have
+  unit tests.
+- UI / end-to-end automation is skipped for the workshop build as a deliberate time-box, not a
+  production default; a client build keeps it. Principles II and III are verified by review
+  instead (Development Workflow).
+
+Rationale: one encoded set of conventions makes every generated change look like this team wrote
+it, for this build and every one after it.
+
 ## Technology & Scope Constraints
 
 - Client-side web application only; browser `localStorage` is the sole persistence mechanism.
 - Fonts load from Google Fonts (Inter) with a system-ui fallback stack.
-- Stack: TypeScript (strict) with React 18 and Vite 5. Tests use Vitest with React Testing
-  Library for unit, component, and accessibility checks, and Playwright with axe for end-to-end
-  checks at 360px and desktop widths. A new runtime dependency requires justification in the plan.
+- Stack: Angular (standalone, zoneless) with strict TypeScript, scaffolded by the Angular CLI in
+  `frontend/`. Server-side rendering and prerendering are disabled, so `localStorage` is always
+  available. Unit tests run with the CLI's Vitest runner (`ng test`). A new runtime dependency
+  beyond the Angular framework and RxJS requires justification in the plan.
 - Non-goals: the following are deliberately out of scope. A request for any of them MUST be
   flagged as a constitution change rather than built.
   - Sign-in, candidate accounts, or third-party "apply with" identity providers.
@@ -92,12 +145,15 @@ Rationale: unhandled states and fake copy hide the real UX problems that matter 
   - Storing or uploading CV file contents; only the file's name, size, and type are kept.
   - Employer-side tooling: role creation or management, applicant review, admin screens.
   - Automated data-retention enforcement and duplicate-application detection.
+  - A multi-step application wizard.
+  - Sending email from a server (confirmation or otherwise).
+  - Search, including searching or filtering roles.
 
 ## Development Workflow
 
 - Features follow the Spec Kit flow: specify → (clarify) → plan → tasks → (analyze) → implement,
   with artifacts in `specs/NNN-short-name/` on a matching branch.
-- Every plan MUST pass a Constitution Check against Principles I–VI before design work and again
+- Every plan MUST pass a Constitution Check against Principles I–VII before design work and again
   after; any violation MUST be justified in Complexity Tracking or removed.
 - Any request that conflicts with this constitution MUST be flagged to the requester before it is
   built.
@@ -114,4 +170,4 @@ Rationale: unhandled states and fake copy hide the real UX problems that matter 
   adding a principle or materially expanding guidance, PATCH for clarifications and wording.
 - Compliance is reviewed at every plan's Constitution Check and at code review.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06
+**Version**: 2.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06

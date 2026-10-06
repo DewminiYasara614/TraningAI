@@ -1,0 +1,75 @@
+<section hf-card class="form-card" aria-labelledby="apply-heading">
+  <div class="intro">
+    <h2 id="apply-heading" class="heading">Apply for this role</h2>
+    <p class="lead">Takes about five minutes. We reply to every application.</p>
+  </div>
+
+  <form class="fields" novalidate aria-labelledby="apply-heading" (submit)="send($event)">
+    @if (errorCount() > 0) {
+      <hf-alert #summary [heading]="summaryHeading()" body="Check the highlighted fields below." />
+    }
+    @if (saveFailed()) {
+      <hf-alert #failure [heading]="failureMessage" />
+    }
+
+    <div class="pair">
+      <hf-text-field
+        fieldId="ap-name"
+        label="Full name"
+        hint="As it appears on your CV."
+        placeholder="Ravi Shah"
+        autocomplete="name"
+        [error]="errors().fullName"
+        [(value)]="fullName"
+      />
+      <hf-text-field
+        fieldId="ap-email"
+        type="email"
+        label="Email"
+        hint="We'll only use this about your application."
+        placeholder="name@company.com"
+        autocomplete="email"
+        [error]="errors().email"
+        [(value)]="email"
+      />
+    </div>
+
+    <div class="cv" role="group" aria-labelledby="ap-cv-label">
+      <span id="ap-cv-label" class="cv-label">CV</span>
+      <hf-cv-file-drop
+        fieldId="ap-cv"
+        hintId="ap-cv-message"
+        labelledBy="ap-cv-label"
+        [value]="cv()"
+        [error]="cvMessage()"
+        (changed)="chooseCv($event)"
+        (rejected)="cvRejection.set($event)"
+      />
+      <span id="ap-cv-message" aria-live="polite" [class]="cvMessage() ? 'error' : 'hint'">
+        {{ cvHint() }}
+      </span>
+    </div>
+
+    <hf-text-field
+      fieldId="ap-note"
+      label="Cover note"
+      optionalLabel="(optional)"
+      [multiline]="true"
+      [rows]="5"
+      [maxLength]="maxCoverNote"
+      [hint]="noteHint()"
+      [placeholder]="notePlaceholder()"
+      [(value)]="coverNote"
+    />
+
+    <div class="actions">
+      <button hf-button type="submit" class="send" busyLabel="Sending…" [busy]="submitting()">
+        Send application
+      </button>
+      <span class="privacy">
+        Your details go to {{ role().company }} only. We delete applications six months after the
+        role closes.
+      </span>
+    </div>
+  </form>
+</section>

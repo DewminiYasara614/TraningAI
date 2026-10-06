@@ -1,0 +1,104 @@
+:host {
+  display: block;
+}
+
+.drop-target {
+  display: flex;
+}
+
+.drop-zone {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  width: 100%;
+  padding: var(--space-24);
+  border: 1.5px dashed var(--color-border-input);
+  border-radius: var(--radius-control);
+  background: var(--color-page);
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.drop-zone:hover,
+.dragging {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+}
+
+.invalid,
+.invalid:hover {
+  border-color: var(--color-error);
+}
+
+.action {
+  color: var(--color-primary);
+  font-size: var(--font-size-15);
+  font-weight: var(--font-weight-semibold);
+}
+
+.secondary {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-13);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-16);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-control);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.badge {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-control);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  font-size: var(--font-size-10);
+  font-weight: var(--font-weight-bold);
+}
+
+.file-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.file-name {
+  overflow: hidden;
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+}
+
+.file-input {
+  display: none;
+}

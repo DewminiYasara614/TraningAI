@@ -1,0 +1,35 @@
+<label class="label" [for]="fieldId()">
+  {{ label() }}
+  @if (optionalLabel()) {
+    <span class="optional">{{ optionalLabel() }}</span>
+  }
+</label>
+@if (multiline()) {
+  <textarea
+    class="control multiline"
+    [class.invalid]="!!error()"
+    [id]="fieldId()"
+    [rows]="rows()"
+    [value]="value()"
+    [attr.placeholder]="placeholder() || null"
+    [attr.maxlength]="maxLength() ?? null"
+    [attr.aria-describedby]="messageId()"
+    [attr.aria-invalid]="error() ? true : null"
+    (input)="onInput($event)"
+  ></textarea>
+} @else {
+  <input
+    class="control"
+    [class.invalid]="!!error()"
+    [id]="fieldId()"
+    [type]="type()"
+    [value]="value()"
+    [attr.placeholder]="placeholder() || null"
+    [attr.maxlength]="maxLength() ?? null"
+    [attr.autocomplete]="autocomplete() ?? null"
+    [attr.aria-describedby]="messageId()"
+    [attr.aria-invalid]="error() ? true : null"
+    (input)="onInput($event)"
+  />
+}
+<span [id]="messageId()" [class]="error() ? 'error' : 'hint'">{{ message() }}</span>

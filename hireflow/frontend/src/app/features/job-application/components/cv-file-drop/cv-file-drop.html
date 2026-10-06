@@ -1,0 +1,56 @@
+@if (value(); as file) {
+  <div class="file-row">
+    <div class="file-info">
+      <span class="badge" aria-hidden="true">{{ typeLabel() }}</span>
+      <div class="file-text">
+        <span class="file-name" [title]="file.name">{{ file.name }}</span>
+        <span class="file-size">{{ sizeLabel() }}</span>
+      </div>
+    </div>
+    <button
+      #removeButton
+      hf-button
+      variant="ghost"
+      type="button"
+      [attr.aria-label]="removeLabel()"
+      [attr.aria-describedby]="hintId()"
+      (click)="remove()"
+    >
+      Remove
+    </button>
+  </div>
+} @else {
+  <div
+    class="drop-target"
+    (dragenter)="onDragOver($event)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+  >
+    <button
+      #chooseButton
+      type="button"
+      class="drop-zone"
+      [class.dragging]="dragging()"
+      [class.invalid]="!!error()"
+      [id]="fieldId()"
+      [attr.data-dragging]="dragging() || null"
+      [attr.aria-labelledby]="chooseLabelledBy()"
+      [attr.aria-describedby]="hintId()"
+      (click)="openPicker()"
+    >
+      <span class="action" [id]="actionId()">Choose a file</span>
+      <span class="secondary">or drag it here · PDF, DOC or DOCX up to 10MB</span>
+    </button>
+  </div>
+}
+<input
+  #fileInput
+  class="file-input"
+  type="file"
+  accept=".pdf,.doc,.docx"
+  tabindex="-1"
+  aria-hidden="true"
+  [attr.data-testid]="fieldId() + '-input'"
+  (change)="onInputChange($event)"
+/>

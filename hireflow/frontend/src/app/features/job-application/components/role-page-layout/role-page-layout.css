@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.columns {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-32);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-40);
+  min-width: 0;
+}
+
+@media (width >= 900px) {
+  .columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--facts-width);
+    column-gap: var(--space-56);
+  }
+
+  .main {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .facts {
+    position: sticky;
+    top: var(--space-32);
+    grid-row: 1;
+    grid-column: 2;
+    align-self: start;
+  }
+}

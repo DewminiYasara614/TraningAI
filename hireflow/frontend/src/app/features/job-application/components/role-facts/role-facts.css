@@ -1,0 +1,77 @@
+:host {
+  display: block;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  margin: 0;
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+  font-weight: var(--font-weight-medium);
+}
+
+.value {
+  margin: 0;
+  font-size: var(--font-size-15);
+  font-weight: var(--font-weight-semibold);
+}
+
+.divider {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.manager {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-round);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  font-size: var(--font-size-12);
+  font-weight: var(--font-weight-semibold);
+}
+
+.manager-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.manager-name {
+  font-size: var(--font-size-13);
+  font-weight: var(--font-weight-semibold);
+}
+
+.manager-role {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+}

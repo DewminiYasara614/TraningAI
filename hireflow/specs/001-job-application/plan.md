@@ -1,59 +1,71 @@
 # Implementation Plan: Job Application Screen
 
-**Branch**: `001-job-application` | **Date**: 2026-10-01 (re-checked 2026-10-06 against
-constitution v1.1.0) | **Spec**: [spec.md](./spec.md)
+**Branch**: `001-job-application` | **Date**: 2026-10-06 (re-planned for Angular under constitution
+v2.0.0; the 2026-10-01 React plan is in git history) | **Spec**: [spec.md](./spec.md)
 
 **Input**: Feature specification from `specs/001-job-application/spec.md`
 
 ## Summary
 
-A single client-side page where a candidate reads one role (Senior .NET Engineer, Northgate Labs)
-and applies with name, email, CV (metadata only) and an optional cover note. Validation runs on
-first send, then live; sending shows a submitting state, saves to browser storage through
-`ApplicationService` → `StorageService`, and swaps the form for a confirmation. Built with React +
-TypeScript + Vite, styled from design tokens as CSS custom properties, matching
-`design/Job Application Page.dc.html`.
+One role page where a candidate reads the Senior .NET Engineer role and applies with name, email,
+CV (details only) and an optional note. Validation runs on first send, then live; sending shows a
+submitting state, saves through `ApplicationService` → `StorageService` to `localStorage`, and
+navigates to a confirmation that survives reload. Standards come from the constitution and
+`CLAUDE.md` and are not restated here.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.x (strict), targeting ES2022
+**Language/Version**: TypeScript (strict) via Angular CLI 21 workspace in `frontend/`
 
-**Primary Dependencies**: React 18, Vite 5; dev: Vitest, React Testing Library, user-event,
-vitest-axe, Playwright, ESLint, stylelint
+**Primary Dependencies**: Angular (standalone, zoneless, router), RxJS — nothing else at runtime
 
-**Storage**: Browser `localStorage`, key `hireflow:applications:v1`, via `StorageService`
+**Storage**: `localStorage` key `applications` (array) and `job` (seeded role), via `StorageService`
 
-**Testing**: Vitest + RTL (unit/component/a11y), Playwright (e2e at 360px and 1280px)
+**Testing**: `ng test` (Vitest) for domain logic and services; UI/e2e skipped (constitution VII)
 
-**Target Platform**: Current evergreen browsers (Chrome, Edge, Firefox, Safari, iOS Safari,
-Android Chrome)
+**Target Platform**: Evergreen desktop and mobile browsers
 
-**Project Type**: Single-page web application (frontend only, no backend)
+**Project Type**: Single-page web app, browser-only
 
-**Performance Goals**: Interactive in < 2 s on a mid-range phone over 4G; field feedback on the
-same input event
+**Performance Goals**: Field feedback on the same input event; submit round-trip ≈ 600 ms simulated
 
-**Constraints**: Works from 360px; WCAG AA; keyboard-operable; no hard-coded hex outside
-`tokens.css`; only button / text input / card components (+ justified additions below)
+**Constraints**: **No SSR / prerendering** (load-bearing: `localStorage` must always exist);
+360px floor; WCAG AA; tokens only
 
-**Scale/Scope**: 1 screen, 1 fixed role, ~6 components, applications stored per browser
+**Scale/Scope**: 2 routes, 1 fixed role, ~10 components
 
-All items resolved in [research.md](./research.md); no NEEDS CLARIFICATION remain.
+## Feature decisions
+
+- **No SSR.** Workspace created with `--ssr=false`; nothing guards `localStorage` for a server.
+- **Routes** (lazy-loaded feature `job-application.routes.ts`):
+  - `/apply` — the role and the form (default; `''` and unknown paths redirect here).
+  - `/confirmation?id=<applicationId>` — the "Application sent" state, read back from storage so
+    it survives reload (spec US1-4). Missing or unknown id → redirect to `/apply` (spec edge case).
+- **Design sources**: build from `design/Job Application Page.dc.html` (final look),
+  structure from `design/Job Application Wireframes.dc.html`, tokens from
+  `design/HireFlow Style Sheet.dc.html` (the export's "Visual Language" file). Token values and
+  focus treatment: [research.md §2](./research.md).
+- **Persistence**: `ApplicationService.submit()` appends to the `applications` array and returns
+  an Observable (with a ~600 ms delay so the submitting state is visible). The role is a
+  `SEED_JOB` constant seeded into `job` on first load and read back through `JobService`.
+- **Data shape**: `Application { id, roleId, jobTitle, fullName, email, coverNote, cv: { name,
+  sizeBytes, type }, submittedAt }`. Reconciled with the page: the workbook's `phone` is dropped
+  (the design has no phone field); `cv` is added (details only, spec FR-013). See
+  [data-model.md](./data-model.md).
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Gate | Pre-research | Post-design |
-|-----------|------|--------------|-------------|
-| I. Design is the source of truth | UI derived from design files; tokens as CSS custom properties; no hard-coded hex | PASS | PASS — `tokens.css` from style sheet; stylelint `color-no-hex` outside it |
-| II. Accessible by default | AA contrast, labels, announced errors, visible focus, keyboard-only | PASS | PASS — native controls, `aria-describedby`/`aria-invalid`, alert focus, CV drop area is a `<button>`, axe in tests |
-| III. Mobile-first, 360px | Mobile-first CSS, no horizontal scroll at 360px | PASS | PASS — min-width breakpoints (900px) + ≤420px tightening; Playwright 360px check |
-| IV. Small, plain component set | Button, text input, card; no gradients/heavy shadows | PASS | PASS with justification — see Complexity Tracking (textarea, file drop) |
-| V. Swappable data layer | Components never touch storage; ApplicationService → StorageService | PASS | PASS — see [contracts/services.md](./contracts/services.md); context-injected services |
-| VI. Every state, real content | Default/validating/submitting/success/error; no lorem ipsum | PASS | PASS — [contracts/ui-states.md](./contracts/ui-states.md); copy from design + spec |
-
-| Scope & stack (v1.1.0) | Adopted stack only; runtime deps justified; no constitution non-goals built | PASS | PASS — runtime deps are React + React DOM only; CV contents never stored (FR-013); no sign-in, backend, employer tooling, retention or duplicate checks |
+| Principle | Pre-research | Post-design |
+|-----------|--------------|-------------|
+| I. Design is the source of truth | PASS | PASS — `styles/tokens.css` from the style sheet; stylelint bans hex/rgb/named colours elsewhere |
+| II. Accessible by default | PASS | PASS — native controls, `aria-describedby`/`aria-invalid`, focusable alerts, CV drop area is a `<button>` |
+| III. Mobile-first, 360px | PASS | PASS — min-width breakpoints (900px) + ≤420px tightening |
+| IV. Small, plain component set | PASS | PASS with justification — see Complexity Tracking |
+| V. Swappable data layer | PASS | PASS — Observable `StorageService`/`ApplicationService`, root-provided; ESLint bans `localStorage` outside `storage.service.ts` |
+| VI. Every state, real content | PASS | PASS — [contracts/ui-states.md](./contracts/ui-states.md) |
+| VII. Angular standards | PASS | PASS — `frontend/`, feature-first, standalone + OnPush + signals, `hf-` prefix, angular-eslint + Prettier, unit tests for domain/services |
 
 No unjustified violations. Gate passed.
 
@@ -63,69 +75,41 @@ No unjustified violations. Gate passed.
 
 ```text
 specs/001-job-application/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-├── contracts/
-│   ├── services.md
-│   ├── storage-schema.md
-│   └── ui-states.md
-├── checklists/requirements.md
-└── tasks.md             # /speckit-tasks output
+├── plan.md · research.md · data-model.md · quickstart.md · tasks.md
+├── contracts/ (services.md, storage-schema.md, ui-states.md)
+└── checklists/ (requirements.md, ux.md)
 ```
 
-### Source Code (repository root)
+### Source Code
 
 ```text
-index.html
-package.json
-vite.config.ts            # also Vitest config
-playwright.config.ts
-src/
-├── main.tsx              # mounts <App/> inside <ServicesProvider>
-├── App.tsx               # page shell: header, main, footer
-├── styles/
-│   ├── tokens.css        # the only file allowed hex values
-│   └── base.css          # reset, body, focus-visible ring
-├── content/
-│   └── role.ts           # Role data (copy from design; spec dates)
-├── domain/
-│   ├── types.ts          # Role, ApplicationDraft, CvFile, Application, FieldErrors
-│   ├── validation.ts     # validateApplication, validateCvFile
-│   └── format.ts         # formatFileSize, formatDate, firstName
-├── services/
-│   ├── StorageService.ts         # interface + StorageError
-│   ├── LocalStorageService.ts
-│   ├── ApplicationService.ts     # interface + LocalApplicationService
-│   └── ServicesContext.tsx       # createServices, ServicesProvider, useServices
-├── components/
-│   ├── Button/           # primary / secondary / ghost; disabled + busy
-│   ├── TextField/        # label, input|textarea, hint/error, counter slot
-│   ├── Card/
-│   ├── FileDrop/         # CV picker + drag area + file row (composes Button)
-│   └── Alert/            # error summary / failure alert (role="alert")
-└── features/job-application/
-    ├── RoleHeader.tsx
-    ├── RoleFacts.tsx
-    ├── RoleDescription.tsx
-    ├── ApplicationForm.tsx       # form state machine, validation wiring
-    ├── ApplicationSent.tsx
-    └── JobApplicationPage.tsx
-tests/
-└── e2e/job-application.spec.ts
+frontend/
+├── src/
+│   ├── index.html · main.ts · styles.css (imports tokens + base)
+│   ├── styles/ tokens.css (only file with colour literals) · base.css
+│   └── app/
+│       ├── app.ts · app.config.ts · app.routes.ts      # shell: header, <router-outlet>, footer
+│       ├── core/storage/ storage.service.ts · storage-error.ts
+│       ├── shared/ui/ button · text-field · card · alert
+│       └── features/job-application/
+│           ├── job-application.routes.ts
+│           ├── models/ role.model.ts · application.model.ts · cv-file.model.ts
+│           ├── data/ seed-job.ts
+│           ├── domain/ validation.ts · format.ts           (+ .spec.ts)
+│           ├── services/ application.service.ts · job.service.ts   (+ .spec.ts)
+│           ├── pages/ apply-page · confirmation-page        # smart (route) components
+│           └── components/ role-header · role-facts · role-description · role-page-layout · application-form · application-sent · cv-file-drop
+└── eslint.config.js · .prettierrc · .stylelintrc.json
 ```
 
-Unit and component tests sit next to their source as `*.test.ts(x)`.
-
-**Structure Decision**: Single frontend project at the repo root. `domain/` is pure logic,
-`services/` is the swappable data layer, `components/` is the small shared set, and
-`features/job-application/` composes them into the screen.
+**Structure Decision**: Angular workspace in `frontend/` (constitution VII). Pages are smart
+components that talk to services; everything under `components/` and `shared/ui/` is
+presentational except `application-form`, which owns form state and calls `ApplicationService`.
 
 ## Complexity Tracking
 
 | Addition | Why Needed | Simpler Alternative Rejected Because |
 |----------|------------|-------------------------------------|
-| `TextField` multiline (textarea) variant | Cover note is multi-line | A single-line input can't hold a 500-char note; it's a variant of text input, not a new component |
-| `FileDrop` component | CV attach with drag-and-drop and file row (spec US3) | No base component handles files; built from Button + Card styling, no new visual language |
-| `Alert` component | Error summary and failure alert (FR-006, FR-019) | Inline text can't meet `role="alert"` + focus requirements cleanly; styled as a tinted card variant |
+| `text-field` multiline variant | Cover note is multi-line | A variant of text input, not a new component |
+| `cv-file-drop` component | CV attach with drag-and-drop and file row (spec US3) | No base component handles files; composes button + card styling |
+| `alert` component | Error summary and failure alert (FR-006, FR-019) | Needs `role="alert"` + programmatic focus; styled as a tinted card |

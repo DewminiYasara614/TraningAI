@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+:host(.pad-md) {
+  padding: var(--space-24);
+}
+
+:host(.pad-lg) {
+  padding: var(--space-32);
+}
+
+:host(.accent) {
+  border-color: var(--color-primary);
+}
+
+@media (width <= 420px) {
+  :host(.pad-md),
+  :host(.pad-lg) {
+    padding: var(--space-20) var(--space-16);
+  }
+}

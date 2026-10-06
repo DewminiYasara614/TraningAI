@@ -40,7 +40,10 @@ confirm the confirmation appears and the application is retained after a page re
    name they entered ("Thanks Ravi."), states the review cadence and reply-by date, and offers
    "Browse other roles" and "Start again".
 4. **Given** an application was sent, **When** the page is reloaded, **Then** the application is
-   still held in the candidate's browser storage.
+   still held in the candidate's browser storage, and the same "Application sent" confirmation is
+   shown again.
+6. **Given** a candidate opens the application page afresh, **Then** an empty form is shown in its
+   default state, even if applications were sent earlier from this browser.
 5. **Given** the confirmation is shown, **When** the candidate selects "Start again", **Then** an
    empty form is shown in its default state; the previously sent application is kept.
 
@@ -153,6 +156,11 @@ confirm it is capped at 500 characters.
 - **Empty (0-byte) file**: treated as invalid ("That file looks empty. Try another file.").
 - **Keyboard-only use**: every control, including the CV drop area and "Remove", is reachable and
   operable by keyboard with a visible focus indicator.
+- **Dropping a file while one is attached**: the file row does not accept drops; the candidate
+  removes the current CV first. A file dropped anywhere outside the drop area is ignored and never
+  replaces the page (so nothing typed is lost).
+- **Confirmation without an application**: opening the confirmation directly, without a sent
+  application to show, takes the candidate to the empty form.
 
 ## Requirements *(mandatory)*
 
@@ -172,7 +180,8 @@ confirm it is capped at 500 characters.
 
 - **FR-004**: The form MUST collect Full name (required), Email (required), CV file (required)
   and Cover note (optional, max 500 characters).
-- **FR-005**: Validation MUST NOT display errors before the first send attempt.
+- **FR-005**: Validation MUST NOT display errors before the first send attempt. Exception: a CV
+  file that is rejected when chosen or dropped (FR-011) shows its message immediately.
 - **FR-006**: On a send attempt with failures, the system MUST block sending, show the error
   summary (singular/plural wording per User Story 2), mark each failing field with its message,
   and move focus to the summary.
@@ -213,7 +222,8 @@ confirm it is capped at 500 characters.
   applications every Thursday, and you'll hear from us either way by 4 December. We'll reply to
   {email}."
 - **FR-019**: On save failure the system MUST leave the submitting state, keep all entered data
-  (including the attached CV), and show the failure alert from Edge Cases.
+  (including the attached CV), and show the failure alert from Edge Cases. The candidate can retry
+  by sending again; the alert clears on that next send attempt.
 - **FR-020**: "Start again" MUST return an empty form in its default state (no errors shown)
   without deleting previously sent applications.
 
@@ -237,8 +247,9 @@ confirm it is capped at 500 characters.
 
 ### Measurable Outcomes
 
-- **SC-001**: A candidate with their CV to hand can go from page load to confirmation in under
-  5 minutes (matching the "Takes about five minutes" promise).
+- **SC-001**: A candidate with their CV to hand can complete and send the application — page load
+  to confirmation — in under 2 minutes (comfortably inside the page's "Takes about five minutes"
+  promise).
 - **SC-002**: 100% of send attempts with a missing or invalid required field are blocked and show
   a specific message for every failing field.
 - **SC-003**: After a failed attempt, each corrected field's error clears on the same change that
@@ -264,6 +275,17 @@ confirm it is capped at 500 characters.
 - No duplicate-application detection.
 - A saved application cannot reopen or download the CV, because only its details are kept.
 
+## Non-goals
+
+This build deliberately does not include:
+
+- Sign-in or candidate accounts (auth).
+- CV file upload: the candidate attaches a CV, but the file is never uploaded or stored — only its
+  name, size and type are recorded.
+- A multi-step application wizard; the application is one form.
+- Server-sent email, including a confirmation email.
+- Search, including searching or filtering roles.
+
 ## Clarifications
 
 ### Session 2026-10-01
@@ -280,3 +302,13 @@ confirm it is capped at 500 characters.
   links may point to placeholders.
 - The submitting state is not drawn in the design; it is required by the constitution (Principle
   VI) and will follow the existing button styling.
+
+### Session 2026-10-06
+
+- Q: After sending, what does a reload show? → A: The same confirmation (from the saved
+  application); opening the form afresh always shows an empty form.
+- Q: Do CV file rejections wait for the first send attempt like other errors? → A: No — they show
+  as soon as the file is chosen or dropped (FR-005 exception).
+- Q: When does the save-failure alert clear? → A: On the next send attempt (retry).
+- Q: Can a file be dropped onto the attached-file row to replace the CV? → A: No; remove first.
+- Q: What is the completion-time target? → A: Under 2 minutes (lab workbook step C2).
