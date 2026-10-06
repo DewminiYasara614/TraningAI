@@ -8,7 +8,8 @@ HireFlow is a recruitment platform. The app is an **Angular 21** workspace in `f
 
 - `design/` — the Claude Design export (static HTML mockups; the source of truth for UI and brand).
 - `.specify/` + `.claude/skills/speckit-*` — GitHub Spec Kit (v0.16.0) scaffolding, configured for Claude with **PowerShell** scripts. The constitution (`.specify/memory/constitution.md`, v2.0.0) holds the standards every plan is gated on.
-- `src/`, `tests/`, and the root `package.json`/configs — an earlier React build of the same screen that predates constitution v2.0.0. It is superseded by `frontend/`; don't extend it.
+
+There is no `package.json` at this level — all npm commands run inside `frontend/`. (An earlier React build of the screen was removed; it is in git history at commit `1f4bfb8`.)
 
 The git repository root is the parent folder (`Training/`); this project lives in `hireflow/`.
 

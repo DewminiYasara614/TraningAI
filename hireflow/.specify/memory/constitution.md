@@ -13,8 +13,8 @@ Sync Impact Report
 - Removed sections: none
 - Templates: plan-template.md "Constitution Check" reads this file at runtime — no edits required
 - Deferred TODOs: none
-- Follow-up: the earlier React build at the repo root (`src/`, `tests/`) predates v2.0.0 and is
-  superseded by `frontend/`; remove it or keep it as reference by explicit decision
+- Follow-up (resolved 2026-10-06): the earlier React build at the repo root was removed; it
+  remains in git history (commit 1f4bfb8)
 -->
 
 # HireFlow Constitution
